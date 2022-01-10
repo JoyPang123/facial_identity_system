@@ -1,4 +1,12 @@
-# Facial Identity system
+<h1 align="center">
+  FISON
+</h1>
+
+<h4 align="center">
+  Facial Identity system on Jetson Nano
+</h4>
+
+[![](./assets/cover.png)](https://www.youtube.com/watch?v=sGgdkX3Jzwo)
 
 ## ⭐️⭐️⭐ This repo is still updating ⭐⭐⭐
 
