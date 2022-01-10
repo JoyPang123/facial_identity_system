@@ -7,6 +7,8 @@
 </h4>
 
 [![](./assets/cover.png)](https://www.youtube.com/watch?v=sGgdkX3Jzwo)
+> [Chinese version link](https://www.youtube.com/watch?v=sGgdkX3Jzwo)
+
 
 ## ⭐️⭐️⭐ This repo is still updating ⭐⭐⭐
 
