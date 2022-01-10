@@ -6,6 +6,7 @@ import base64
 from datetime import datetime
 import threading
 import signal
+from screeninfo import get_monitors
 
 import socket
 
@@ -64,35 +65,42 @@ def monitor():
     global global_frame
     global running
 
-    BUFF_SIZE = 1024
-    WIDTH = 200
+    BUFF_SIZE = 65536 * 32
+    WIDTH = 400
 
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, BUFF_SIZE)
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind(("0.0.0.0", 9999))
+    server_socket.listen(5)
     server_socket.settimeout(5)
 
     while running:
         try:
-            msg, client_addr = server_socket.recvfrom(BUFF_SIZE)
+            conn, client_addr = server_socket.accept()
             print(client_addr)
 
             while running:
+                # Get the global frame
                 curr_frame = global_frame.copy()
                 frame = imutils.resize(curr_frame, width=WIDTH)
+
+                # Encode the img to string
                 encoded, buffer = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
-                message = base64.b64encode(buffer)
-                server_socket.sendto(message, client_addr)
+                data = np.array(buffer)
+                string_img = data.tostring()
+
+                # Send to the client
+                conn.send(str(len(string_img)).ljust(16).encode("utf8"))
+                conn.send(string_img)
 
                 try:
-                    msg = server_socket.recv(BUFF_SIZE)
-                except socket.timeout as e:
+                    conn.recv(1024)
+                except (socket.timeout, BlockingIOError) as e:
                     print(e)
                     break
-
-                time.sleep(0.01)
-        except Exception as e:
+        except socket.timeout as e:
             pass
+        except Exception as e:
+            print(e)
 
     server_socket.close()
 
@@ -121,6 +129,9 @@ def detect_faces(mtcnn, bucket, database, model):
             if boxes is not None:
                 boxes = boxes[0].astype("int").tolist()
                 frame = frame[boxes[1]:boxes[3], boxes[0]:boxes[2]]
+            else:
+                set_light(0, 0, 0)
+                continue
 
             # Detect the results
             if not (np.array(frame.shape) == 0).any():
@@ -140,9 +151,11 @@ def detect_faces(mtcnn, bucket, database, model):
 
                         # Compute the distance
                         distance = measure_dis(value_tensor, res).item()
+                        print(distance)
 
-                        if distance < 0.4:
+                        if distance < 0.2:
                             if min_distance > distance:
+                                print(key, distance)
                                 name = key
                                 pass_status = True
                                 min_distance = distance
@@ -208,7 +221,7 @@ if __name__ == "__main__":
     set_light(0, 0, 0)
 
     # Set up google cloud client
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "face_identity.json"
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "<your json file>"
     client = storage.Client()
     bucket = client.get_bucket("face_identity")
 
@@ -218,7 +231,7 @@ if __name__ == "__main__":
 
     # Set up firebase app
     database = firebase.FirebaseApplication(
-        'https://face-identity-default-rtdb.asia-southeast1.firebasedatabase.app/', None
+        "<your firebase link", None
     )
 
     if args.download:
@@ -253,12 +266,25 @@ if __name__ == "__main__":
     # Catch signal if necessary
     signal.signal(signal.SIGINT, exit_handler)
 
+    # Set up the full screen
+    monitor_info = get_monitors()[0]
+    screen_height, screen_width = monitor_info.height, monitor_info.width
+
+    cv2.namedWindow("frame", cv2.WND_PROP_FULLSCREEN)
+    cv2.setWindowProperty("frame", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
     # Upload information
     while running:
+        dummy_window = np.full((screen_height, screen_width, 3), 190, dtype="uint8")
         _, frame = cap.read()
         frame = imutils.resize(frame, width=640)
 
-        cv2.imshow("frame", frame)
+        center_y = (screen_height - frame.shape[0]) // 2
+        center_x = (screen_width - frame.shape[1]) // 2
+
+        dummy_window[center_y:center_y + frame.shape[0], center_x:center_x + frame.shape[1]] = frame
+
+        cv2.imshow("frame", dummy_window)
         global_frame = frame
         cv2.waitKey(40)
 

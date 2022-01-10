@@ -186,6 +186,15 @@ class VideoTab(QtWidgets.QWidget):
 
         self.parent().parent().parent().status_record.setText("")
 
+        # Uploading the data
+        windows = QtWidgets.QMessageBox()
+        windows.setIcon(QtWidgets.QMessageBox.Information)
+        windows.setText("Adding a new face...")
+        windows.addButton(QtWidgets.QMessageBox.Ok)
+        windows.button(QtWidgets.QMessageBox.Ok).hide()
+        windows.show()
+        QtWidgets.QApplication.processEvents()
+
         # Transform into tensor and get features
         with torch.no_grad():
             features = self.model.get_features(torch.stack(faces_array)).mean(dim=0).tolist()
@@ -196,3 +205,5 @@ class VideoTab(QtWidgets.QWidget):
         self.database.put(f"users/{self.user_id}/identity", f"face{face_count}", features)
 
         self.take_frame_button.setEnabled(True)
+
+        windows.done(0)

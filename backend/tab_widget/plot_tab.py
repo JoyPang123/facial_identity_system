@@ -118,11 +118,18 @@ class MatplotlibTab(QtWidgets.QWidget):
 
     def reload_spatial_info(self):
         data = self.database.get(f"/users/{self.user_id}", "identity")
+        secure_data = self.database.get(f"/users/{self.user_id}", "secure")
 
-        if data is not None and len(data) < 2:
+        if data is None or len(data) < 2:
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Critical)
             msg.setText("Number of faces should be greater or equal than 2.")
+            msg.setWindowTitle("Error for generating plot")
+            msg.exec_()
+        elif secure_data is None:
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("The recorded data is empty. Please try after a detection.")
             msg.setWindowTitle("Error for generating plot")
             msg.exec_()
         elif data is not None:
@@ -137,8 +144,6 @@ class MatplotlibTab(QtWidgets.QWidget):
                 name_to_idx[key] = count_faces - 1
                 faces_spatial.append(torch.tensor(value))
 
-            # Get the secure data
-            secure_data = self.database.get(f"/users/{self.user_id}", "secure")
             for key, value in secure_data.items():
                 if value["pass"]:
                     state.append((value["pass"], name_to_idx[value["name"]]))

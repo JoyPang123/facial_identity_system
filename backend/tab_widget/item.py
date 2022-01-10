@@ -72,11 +72,7 @@ class CustomItem(QtWidgets.QWidget):
         image = self.pix_to_array(self.parent().parent().parent().monitor.pixmap())
 
         if image is not None:
-            user_id = self.parent().parent().parent().user_id
             model.train()
-            target_features = self.parent().parent().parent().database.get(
-                f"/users/{user_id}/identity", self.pass_info.text().split(" ", 1)[-1]
-            )
             image = transform(image[..., :3].copy())
 
             # Create other positive features

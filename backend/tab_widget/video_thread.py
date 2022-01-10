@@ -20,10 +20,8 @@ class VideoWorkerThread(QThread):
     def run(self):
         try:
             if self.check_is_udp():
-                BUFF_SIZE = 65536
-                self.capture = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                self.capture.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, BUFF_SIZE)
-                self.capture.sendto(b"connect", (self.video_file.split(":")[-1], 9999))
+                self.capture = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.capture.connect((self.video_file.split(":")[-1], 9999))
                 self.capture.settimeout(5)
             else:
                 self.capture = cv2.VideoCapture(self.video_file)
@@ -31,24 +29,24 @@ class VideoWorkerThread(QThread):
             self.parent.thread_is_running = False
             self.parent.start_button.setEnabled(True)
             self.parent.video_display_label.setText(str(e))
-            return
+            self.capture.close()
 
         fps, start_time, record_fps_frames, count_frame = 0, 0, 20, 0
         while self.parent.thread_is_running:
             # Read frames from the camera
             try:
                 if self.check_is_udp():
-                    packet = self.capture.recv(BUFF_SIZE)
-                    data = base64.b64decode(packet, ' /')
-                    frame = np.fromstring(data, dtype=np.uint8)
+                    length = self.recv_all(self.capture, 16)
+                    img_string = self.recv_all(self.capture, int(length))
+                    frame = np.fromstring(img_string, dtype="uint8")
                     frame = cv2.imdecode(frame, 1)
                 else:
                     ret_val, frame = self.capture.read()
-            except socket.timeout as e:
+            except (socket.timeout, BlockingIOError) as e:
                 self.parent.thread_is_running = False
                 self.parent.start_button.setEnabled(True)
                 self.parent.video_display_label.setText(str(e))
-                return
+                break
 
             frame = imutils.resize(frame, width=640)
             x, y = 80, 0
@@ -66,12 +64,23 @@ class VideoWorkerThread(QThread):
             self.frame_data_updated.emit(frame)
 
             if self.check_is_udp():
-                self.capture.sendto(b"get", (self.video_file.split(":")[-1], 9999))
+                self.capture.send(b"get")
 
         if self.check_is_udp():
             self.capture.close()
         else:
             self.capture.release()
+
+    @staticmethod
+    def recv_all(connect, count):
+        buffer = b""
+        while count:
+            new_buffer = connect.recv(count)
+            if not new_buffer:
+                return None
+            buffer += new_buffer
+            count -= len(new_buffer)
+        return buffer
 
     def check_is_udp(self):
         return "udp" in str(self.video_file)
