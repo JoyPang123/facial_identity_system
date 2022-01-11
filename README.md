@@ -6,7 +6,7 @@
   Facial Identity system on Jetson Nano
 </h4>
 
-[![](./assets/cover.png)](https://www.youtube.com/watch?v=sGgdkX3Jzwo)
+[![](./assets/cover.png)](https://youtu.be/V-_LuZgbhTs)
 > [Chinese version link](https://www.youtube.com/watch?v=sGgdkX3Jzwo)
 
 
