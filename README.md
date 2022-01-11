@@ -82,17 +82,28 @@ $ sudo bash -c 'echo "/var/swapfile swap swap defaults 0 0" >> /etc/fstab'
 ### Backend
 
 #### 1. Set up the Firebase Realtime Database
-a. Create a project in [Firebase](https://console.firebase.google.com)
-b. Select the project created in step 1, and click the **Realtime Database** on the left sidebar
-c. Copy the link, which looks like `https://<project-name>-default-rtdb.<place>.firebasedatabase.app/`
-d. Replace `<your firebase url>` in **line 117** in `backend/main.py` and **line 234** in `jetson/main.py` with your link
+a. Create a project in [Firebase](https://console.firebase.google.com)  
+b. Select the project created in step 1, and click the **Realtime Database** on the left sidebar  
+c. Copy the link, which looks like `https://<project-name>-default-rtdb.<place>.firebasedatabase.app/`  
+d. Replace `<your firebase url>` in **line 117** in `backend/main.py` and **line 234** in `jetson/main.py` with your link  
 
 #### 2. Set up the Google Cloud Storage
-a. Activate the [Authentication](https://cloud.google.com/docs/authentication/getting-started) and get the json file
-b. [Create Cloud Storage bucket](https://cloud.google.com/storage/docs/creating-buckets)
-c. Replace `<your json file>` in **line 110** in `backend/main.py` and **line 224** in `jetson/main.py` with the location of your json file
+a. Activate the [Authentication](https://cloud.google.com/docs/authentication/getting-started) and get the json file  
+b. [Create Cloud Storage bucket](https://cloud.google.com/storage/docs/creating-buckets)  
+c. Replace `<your json file>` in **line 110** in `backend/main.py` and **line 224** in `jetson/main.py` with the location of your json file  
 
-## D. Experiments
+## D. Training
+User can train the model by:
+```shell
+$ python model/triplet/train.py \
+    --csv_path "<csv file>" \
+    --img_root "<root for the training file>" \
+    --weight "<place to save the weight file>"
+```
+
+> See more arguments in `model/triplet/train.py`
+
+## E. Experiments
 ### Training details
 <p align="center">
 <img alt="triplet" src="./assets/triplet.png" width=80%>
@@ -176,7 +187,7 @@ In order to train the model without extra label, we design a self-supervised lea
 
 > It is surprising that cuda consumes lots of time. We guess it is because cuda rely on huge amount of swap memory that slow down its runtime 😢.
 
-## E. Contribution to CelebA
+## F. Contribution to CelebA
 
 In order to train one-shot model, we obtain the face's coordinates beforehand. All files are placed in `csv_file`.
 > The coordinates were obtained from [facenet-pytorch](https://github.com/timesler/facenet-pytorch)
