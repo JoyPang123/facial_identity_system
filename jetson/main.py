@@ -231,7 +231,7 @@ if __name__ == "__main__":
 
     # Set up firebase app
     database = firebase.FirebaseApplication(
-        "<your firebase link", None
+        "<your firebase url>", None
     )
 
     if args.download:

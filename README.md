@@ -12,7 +12,7 @@
 
 ## ⭐️⭐️⭐ This repo is still updating ⭐⭐⭐
 
-## Introduction
+## A. Introduction
 
 This project is to utilize facial recognition to create a facial identity system. Our backend is constructed by one-shot models which is more flexible for adding a new face. The system is built on personal computer and Jetson Nano. Jetson Nano is used to recognized the faces and upload the detected information to Firebase. Users who use our application with account and password can log in to control the database and obtain the information.
 
@@ -38,7 +38,7 @@ Our facial identity system includes below features:
 * Used as a monitor
 * Visualize the features
 
-## Installation
+## B. Installation
 
 ### Personal computer
 
@@ -67,7 +67,7 @@ $ sudo swapon /swapfile
 $ sudo bash -c 'echo "/var/swapfile swap swap defaults 0 0" >> /etc/fstab'
 ```
 
-## Preparation
+## C. Preparation
 > This section is to help users to set up facial identity system. The required materials are listed below:
 > * 1 Camera 
 > * 1 button 
@@ -80,10 +80,19 @@ $ sudo bash -c 'echo "/var/swapfile swap swap defaults 0 0" >> /etc/fstab'
 </p>
 
 ### Backend
-1. Set up the Firebase Realtime Database
-2. Set up the Google Cloud Storage
 
-## Experiments
+#### 1. Set up the Firebase Realtime Database
+a. Create a project in [Firebase](https://console.firebase.google.com)
+b. Select the project created in step 1, and click the **Realtime Database** on the left sidebar
+c. Copy the link, which looks like `https://<project-name>-default-rtdb.<place>.firebasedatabase.app/`
+d. Replace `<your firebase url>` in **line 117** in `backend/main.py` and **line 234** in `jetson/main.py` with your link
+
+#### 2. Set up the Google Cloud Storage
+a. Activate the [Authentication](https://cloud.google.com/docs/authentication/getting-started) and get the json file
+b. [Create Cloud Storage bucket](https://cloud.google.com/storage/docs/creating-buckets)
+c. Replace `<your json file>` in **line 110** in `backend/main.py` and **line 224** in `jetson/main.py` with the location of your json file
+
+## D. Experiments
 ### Training details
 <p align="center">
 <img alt="triplet" src="./assets/triplet.png" width=80%>
@@ -167,7 +176,7 @@ In order to train the model without extra label, we design a self-supervised lea
 
 > It is surprising that cuda consumes lots of time. We guess it is because cuda rely on huge amount of swap memory that slow down its runtime 😢.
 
-## Contribution to CelebA
+## E. Contribution to CelebA
 
 In order to train one-shot model, we obtain the face's coordinates beforehand. All files are placed in `csv_file`.
 > The coordinates were obtained from [facenet-pytorch](https://github.com/timesler/facenet-pytorch)
@@ -179,7 +188,7 @@ In order to train one-shot model, we obtain the face's coordinates beforehand. A
 
 ![cropped image](./assets/cropped.jpg)
 
-## Citation
+## F. Citation
 
 ```bib
 @inproceedings{liu2015faceattributes,

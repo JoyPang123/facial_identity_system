@@ -107,14 +107,14 @@ class MainWindow(QtWidgets.QMainWindow):
 if __name__ == '__main__':
     import os
 
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "<GCP JSON file>"
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "<your json file>"
 
     # Add google cloud client
     client = storage.Client()
     bucket = client.get_bucket("face_identity")
 
     database = firebase.FirebaseApplication(
-        "<your url>", None
+        "<your firebase url>", None
     )
 
     app = QtWidgets.QApplication(sys.argv)
