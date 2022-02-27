@@ -9,9 +9,6 @@
 [![](./assets/cover.png)](https://youtu.be/V-_LuZgbhTs)
 > [Chinese version link](https://www.youtube.com/watch?v=sGgdkX3Jzwo)
 
-
-## ⭐️⭐️⭐ This repo is still updating ⭐⭐⭐
-
 ## A. Introduction
 
 This project is to utilize facial recognition to create a facial identity system. Our backend is constructed by one-shot models which is more flexible for adding a new face. The system is built on personal computer and Jetson Nano. Jetson Nano is used to recognized the faces and upload the detected information to Firebase. Users who use our application with account and password can log in to control the database and obtain the information.
